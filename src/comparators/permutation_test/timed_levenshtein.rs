@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use process_mining::{event_log::Trace, EventLog};
 
 use crate::{
