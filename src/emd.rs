@@ -11,31 +11,10 @@ pub fn compute_emd(
     frequencies_2: Vec<f64>,
     distances: &Array2<f64>,
 ) -> EmdResult {
-    // Since the C library assumes a column-major layout, we need to massage the
-    // matrix into a format that, when the memory is traversed asssuming a
-    // column-major layout, it gives the right values.
-    let mut dists_iter = distances.iter().cloned();
-    let mut col_major_ready_dists =
-        Array2::from_shape_simple_fn((distances.shape()[1], distances.shape()[0]), || {
-            dists_iter.next().unwrap()
-        })
-        .reversed_axes();
-
-    // let nrows = distances.shape()[0];
-    // let ncols = distances.shape()[1];
-    // let new_col_major_dists = Array2::from_shape_fn((nrows, ncols), |(i, j)| {
-    //     let index = j * nrows + i;
-    //     let old_i = index / ncols;
-    //     let old_j = index % ncols;
-    //
-    //     distances[(old_i, old_j)]
-    // });
-    // assert_eq!(col_major_ready_dists, new_col_major_dists);
-
     let ot_matrix = EarthMovers::new(
         &mut Array1::from_vec(frequencies_1.clone()),
         &mut Array1::from_vec(frequencies_2.clone()),
-        &mut col_major_ready_dists,
+        &mut distances.as_standard_layout().to_owned(),
     )
     .solve()
     .unwrap();
