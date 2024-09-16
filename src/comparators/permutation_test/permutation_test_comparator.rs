@@ -112,11 +112,6 @@ where
     }
 
     fn compute_symmetric_distance_matrix(&self, variants: &[T]) -> Array2<f64> {
-        println!(
-            "Creating distance matrix for {} variants (of size {})",
-            variants.len(),
-            variants.len().pow(2)
-        );
         let mut mat = Array2::zeros((variants.len(), variants.len()));
         let progress = build_progress_bar(
             variants.len().pow(2) as u64,

@@ -84,13 +84,6 @@ impl PermutationTestComparator<Vec<(String, usize)>> for TimedLevenshteinPermuta
             })
             .collect();
 
-        let unique_variants_1: HashSet<Vec<(String, usize)>> =
-            binned_service_time_traces_1.iter().cloned().collect();
-        let unique_variants_2: HashSet<Vec<(String, usize)>> =
-            binned_service_time_traces_2.iter().cloned().collect();
-
-        println!("Unique Variants 1: {}", unique_variants_1.len());
-        println!("Unique Variants 2: {}", unique_variants_2.len());
         (binned_service_time_traces_1, binned_service_time_traces_2)
     }
 
