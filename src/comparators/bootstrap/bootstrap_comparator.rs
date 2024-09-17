@@ -70,7 +70,7 @@ where
         let progress = build_progress_bar(
             variants_1.len() as u64 * variants_2.len() as u64,
             format!(
-                "Computing complete distance matrix ({}x{})",
+                "Computing distance matrix ({}x{})",
                 variants_1.len(),
                 variants_2.len(),
             ),
