@@ -6,10 +6,7 @@ use process_mining::EventLog;
 use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
 
 use crate::{
-    comparators::common::stochastic_language::{
-        population_to_stochastic_language, StochasticLanguage,
-    },
-    emd::compute_emd,
+    comparators::common::stochastic_language::StochasticLanguage, emd::compute_emd,
     utils::progress::build_progress_bar,
 };
 
@@ -45,8 +42,8 @@ where
             .into_iter()
             .collect();
         combined_variants.sort();
-        let stoch_lang_1 = population_to_stochastic_language(behavior_1.clone());
-        let stoch_lang_2 = population_to_stochastic_language(behavior_2.clone());
+        let stoch_lang_1 = StochasticLanguage::from_items(behavior_1.clone());
+        let stoch_lang_2 = StochasticLanguage::from_items(behavior_2.clone());
 
         let large_distance_matrix = self.compute_symmetric_distance_matrix(&combined_variants);
 

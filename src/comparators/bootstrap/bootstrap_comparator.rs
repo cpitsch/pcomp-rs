@@ -10,10 +10,7 @@ use rand::{
 };
 
 use crate::{
-    comparators::common::stochastic_language::{
-        population_to_stochastic_language, StochasticLanguage,
-    },
-    emd::compute_emd,
+    comparators::common::stochastic_language::StochasticLanguage, emd::compute_emd,
     utils::progress::build_progress_bar,
 };
 
@@ -42,8 +39,8 @@ where
     ) -> BootstrapTestComparisonResult {
         let (behavior_1, behavior_2) = self.extract_representations(log_1, log_2);
 
-        let stoch_lang_1 = population_to_stochastic_language(behavior_1);
-        let stoch_lang_2 = population_to_stochastic_language(behavior_2);
+        let stoch_lang_1 = StochasticLanguage::from_items(behavior_1);
+        let stoch_lang_2 = StochasticLanguage::from_items(behavior_2);
 
         let logs_emd = compute_emd(
             stoch_lang_1.frequencies.clone(),

@@ -43,16 +43,3 @@ where
         }
     }
 }
-
-pub fn population_to_stochastic_language<T: Hash + Eq + Clone + Ord>(
-    population: Vec<T>,
-) -> StochasticLanguage<T> {
-    let pop_size = population.len();
-    population
-        .into_iter()
-        .counts()
-        .into_iter()
-        .map(|(k, v)| (k, v as f64 / pop_size as f64))
-        .sorted_by(|x, y| x.partial_cmp(y).unwrap())
-        .collect()
-}
