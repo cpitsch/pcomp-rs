@@ -1,17 +1,19 @@
+use process_mining::EventLog;
+
 use crate::{
     comparators::common::extraction::project_traces_on_activity,
     distance::weighted_levenshtein::postnormalized_weighted_levenshtein_distance,
 };
 
-use super::permutation_test_comparator::PermutationTestComparator;
+use super::bootstrap_comparator::BootstrapTestComparator;
 
-pub struct ControlFlowPermutationComparator;
+pub struct ControlFlowBootstrapComparator;
 
-impl PermutationTestComparator<Vec<String>> for ControlFlowPermutationComparator {
+impl BootstrapTestComparator<Vec<String>> for ControlFlowBootstrapComparator {
     fn extract_representations(
         &self,
-        log_1: &process_mining::EventLog,
-        log_2: &process_mining::EventLog,
+        log_1: &EventLog,
+        log_2: &EventLog,
     ) -> (Vec<Vec<String>>, Vec<Vec<String>>) {
         (
             project_traces_on_activity(log_1),

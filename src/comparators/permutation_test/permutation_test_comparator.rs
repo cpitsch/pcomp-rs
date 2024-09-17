@@ -1,42 +1,17 @@
 use std::{collections::HashSet, fmt::Debug, hash::Hash};
 
-use itertools::{multiunzip, Itertools};
+use itertools::Itertools;
 use ndarray::Array2;
 use process_mining::EventLog;
 use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
 
-use crate::{emd::compute_emd, utils::progress::build_progress_bar};
-
-pub struct StochasticLanguage<T: Hash + Eq + Clone> {
-    pub variants: Vec<T>,
-    pub frequencies: Vec<f64>,
-}
-
-impl<T> StochasticLanguage<T>
-where
-    T: Hash + Eq + Clone,
-{
-    pub fn from_vec(v: Vec<(T, f64)>) -> Self {
-        v.into_iter().collect()
-    }
-
-    pub fn iter_pairs(&self) -> std::iter::Zip<std::slice::Iter<'_, T>, std::slice::Iter<'_, f64>> {
-        self.variants.iter().zip(self.frequencies.iter())
-    }
-}
-
-impl<T> FromIterator<(T, f64)> for StochasticLanguage<T>
-where
-    T: Hash + Eq + Clone,
-{
-    fn from_iter<I: IntoIterator<Item = (T, f64)>>(iter: I) -> Self {
-        let (variants, frequencies) = multiunzip(iter);
-        Self {
-            variants,
-            frequencies,
-        }
-    }
-}
+use crate::{
+    comparators::common::stochastic_language::{
+        population_to_stochastic_language, StochasticLanguage,
+    },
+    emd::compute_emd,
+    utils::progress::build_progress_bar,
+};
 
 #[derive(Debug)]
 pub struct PermutationTestComparisonResult {
@@ -141,19 +116,6 @@ where
     }
 }
 
-pub fn population_to_stochastic_language<T: Hash + Eq + Clone + Ord>(
-    population: Vec<T>,
-) -> StochasticLanguage<T> {
-    let pop_size = population.len();
-    population
-        .into_iter()
-        .counts()
-        .into_iter()
-        .map(|(k, v)| (k, v as f64 / pop_size as f64))
-        .sorted_by(|x, y| x.partial_cmp(y).unwrap())
-        .collect()
-}
-
 pub fn project_distance_matrix<T: Clone + Eq + Hash>(
     dists: &Array2<f64>,
     dist_matrix_source_population: &[T],
@@ -213,7 +175,7 @@ pub fn compute_permutation_test_distribution<T: PartialEq>(
     let res = (0..distribution_size)
         .map(|_| {
             let mut sample = (0..sample_size).collect_vec();
-            sample.shuffle(&mut rng);
+            sample.partial_shuffle(&mut rng, behavior_1.len());
             let (sample_1, sample_2) = sample.split_at(behavior_1.len());
             let translated_sample_1: StochasticLanguage<usize> = sample_1
                 .iter()
@@ -230,9 +192,9 @@ pub fn compute_permutation_test_distribution<T: PartialEq>(
                 .map(|(k, v)| (k, v as f64 / behavior_1.len() as f64))
                 .collect();
 
-            let selected_rows = dists.select(ndarray::Axis(0), &translated_sample_1.variants);
-            let projected_dists =
-                selected_rows.select(ndarray::Axis(1), &translated_sample_2.variants);
+            let projected_dists = dists
+                .select(ndarray::Axis(0), &translated_sample_1.variants)
+                .select(ndarray::Axis(1), &translated_sample_2.variants);
 
             let res = compute_emd(
                 translated_sample_1.frequencies,

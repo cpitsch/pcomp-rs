@@ -8,12 +8,12 @@ use crate::{
     distance::weighted_levenshtein::postnormalized_weighted_levenshtein_distance,
 };
 
-use super::permutation_test_comparator::PermutationTestComparator;
+use super::bootstrap_comparator::BootstrapTestComparator;
 
 #[derive(Default)]
-pub struct TimedLevenshteinPermutationComparator;
+pub struct TimedLevenshteinBootstrapComparator;
 
-impl PermutationTestComparator<Vec<(String, usize)>> for TimedLevenshteinPermutationComparator {
+impl BootstrapTestComparator<Vec<(String, usize)>> for TimedLevenshteinBootstrapComparator {
     fn extract_representations(
         &self,
         log_1: &EventLog,
@@ -22,12 +22,13 @@ impl PermutationTestComparator<Vec<(String, usize)>> for TimedLevenshteinPermuta
         let service_time_traces_1 = extract_service_time_traces(log_1);
         let service_time_traces_2 = extract_service_time_traces(log_2);
 
-        let combined_data: Vec<(String, f64)> = service_time_traces_1
+        let combined_data: Vec<_> = service_time_traces_1
             .iter()
             .chain(service_time_traces_2.iter())
             .flatten()
             .cloned()
             .collect();
+
         let binner_manager =
             BinnerManager::<f64, OuterPercentileBinner>::from_key_value_pairs(combined_data);
 
