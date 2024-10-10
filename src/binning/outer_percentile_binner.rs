@@ -6,7 +6,9 @@ pub struct OuterPercentileBinner {
 }
 
 impl Binner<f64> for OuterPercentileBinner {
-    fn new(mut data: Vec<f64>) -> Self {
+    type Args = ();
+
+    fn new(mut data: Vec<f64>, _args: Self::Args) -> Self {
         let lower_boundary = percentile(&mut data, 10.0);
         let upper_boundary = percentile(&mut data, 90.0);
 

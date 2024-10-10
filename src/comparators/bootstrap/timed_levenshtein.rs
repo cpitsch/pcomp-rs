@@ -1,7 +1,10 @@
 use process_mining::EventLog;
 
 use crate::{
-    binning::{outer_percentile_binner::OuterPercentileBinner, BinnerManager},
+    binning::{
+        kmeans_binner::{KMeansArgs, KMeansBinner},
+        BinnerManager,
+    },
     comparators::common::extraction::{
         apply_binner_manager_on_service_time_traces, extract_service_time_traces,
     },
@@ -11,7 +14,9 @@ use crate::{
 use super::bootstrap_comparator::BootstrapTestComparator;
 
 #[derive(Default)]
-pub struct TimedLevenshteinBootstrapComparator;
+pub struct TimedLevenshteinBootstrapComparator {
+    binner_args: KMeansArgs,
+}
 
 impl BootstrapTestComparator<Vec<(String, usize)>> for TimedLevenshteinBootstrapComparator {
     fn extract_representations(
@@ -29,8 +34,10 @@ impl BootstrapTestComparator<Vec<(String, usize)>> for TimedLevenshteinBootstrap
             .cloned()
             .collect();
 
-        let binner_manager =
-            BinnerManager::<f64, OuterPercentileBinner>::from_key_value_pairs(combined_data);
+        let binner_manager = BinnerManager::<f64, KMeansBinner>::from_key_value_pairs(
+            combined_data,
+            self.binner_args.clone(),
+        );
 
         (
             apply_binner_manager_on_service_time_traces(service_time_traces_1, &binner_manager),
