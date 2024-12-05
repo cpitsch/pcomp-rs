@@ -1,10 +1,11 @@
 use std::hash::Hash;
 
 use itertools::{multiunzip, Itertools};
+use ndarray::Array1;
 
 pub struct StochasticLanguage<T: Hash + Eq + Clone> {
     pub variants: Vec<T>,
-    pub frequencies: Vec<f64>,
+    pub frequencies: Array1<f64>,
 }
 
 impl<T> StochasticLanguage<T>
@@ -12,11 +13,29 @@ where
     T: Hash + Eq + Clone + PartialOrd,
 {
     pub fn from_vec(v: Vec<(T, f64)>) -> Self {
-        v.into_iter().collect()
+        let v_len = v.len();
+        let mut variants: Vec<T> = Vec::with_capacity(v_len);
+        let mut frequencies = Array1::zeros(v_len);
+
+        v.into_iter().enumerate().for_each(|(i, (variant, freq))| {
+            variants.push(variant);
+            frequencies[i] = freq;
+        });
+
+        Self {
+            variants,
+            frequencies,
+        }
     }
 
-    pub fn iter_pairs(&self) -> std::iter::Zip<std::slice::Iter<'_, T>, std::slice::Iter<'_, f64>> {
-        self.variants.iter().zip(self.frequencies.iter())
+    pub fn iter_pairs(
+        &self,
+    ) -> std::iter::Zip<
+        std::slice::Iter<'_, T>,
+        ndarray::iter::Iter<'_, f64, ndarray::Dim<[usize; 1]>>,
+    > {
+        let res = self.variants.iter().zip(self.frequencies.iter());
+        res
     }
 
     pub fn from_items(items: Vec<T>) -> Self {
@@ -37,6 +56,7 @@ where
 {
     fn from_iter<I: IntoIterator<Item = (T, f64)>>(iter: I) -> Self {
         let (variants, frequencies) = multiunzip(iter);
+        let frequencies = Array1::from_vec(frequencies);
         Self {
             variants,
             frequencies,

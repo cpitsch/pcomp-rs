@@ -151,12 +151,11 @@ fn initialize<T: Elem>(k: usize, elems: &[T], seed: Option<u64>) -> Vec<Centroid
     let mut taken = vec![false; elems.len()];
     let mut centroids = vec![];
 
-    let mut rng = if let Some(seed) = seed {
-        rand::rngs::StdRng::seed_from_u64(seed)
+    let first = if let Some(seed) = seed {
+        rand::rngs::StdRng::seed_from_u64(seed).gen::<usize>()
     } else {
-        rand::rngs::StdRng::from_entropy()
-    };
-    let first = rng.gen::<usize>() % elems.len();
+        rand::random::<usize>()
+    } % elems.len();
 
     taken[first] = true;
     centroids.push(new_centroid(&elems[first]));
