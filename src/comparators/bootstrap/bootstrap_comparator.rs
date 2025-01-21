@@ -8,6 +8,8 @@ use rand::{
     rngs::StdRng,
     SeedableRng,
 };
+#[cfg(feature = "parallel")]
+use rayon::prelude::*;
 
 use crate::{
     comparators::common::stochastic_language::StochasticLanguage, emd::compute_emd,
@@ -110,10 +112,15 @@ where
             "Computing permutation EMD distribution".into(),
         );
 
-        let emds = (0..distribution_size)
-            .map(|_| {
-                let sample_indices: Vec<usize> = sampler.by_ref().take(resample_size).collect();
-                let sample_stochastic_language = StochasticLanguage::from_items(sample_indices);
+        let iterator = (0..distribution_size).map(|_| {
+            StochasticLanguage::from_items(sampler.by_ref().take(resample_size).collect())
+        });
+
+        #[cfg(feature = "parallel")]
+        let iterator = iterator.par_bridge();
+
+        let emds = iterator
+            .map(|sample_stochastic_language| {
                 let projected_costs =
                     distance_matrix.select(ndarray::Axis(0), &sample_stochastic_language.variants);
                 let emd = compute_emd(
