@@ -1,6 +1,3 @@
-// Implementation altered from https://www.github.com/xgillard/clustering
-// Added seeding
-
 // Copyright 2022 Xavier Gillard
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,6 +17,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+//! Implementation altered from https://www.github.com/xgillard/clustering
+//! Added seeding
+//!
 //! This crate provides an easy and efficient way to perform kmeans
 //! clustering on arbitrary data. The algo is initialized with kmeans++
 //! for best performance of the clustering.
