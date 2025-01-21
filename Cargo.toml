@@ -10,6 +10,6 @@ chrono = "0.4.38"
 indicatif = "0.17.8"
 itertools = "0.13.0"
 ndarray = "0.16.1"
-network_simplex = { version = "0.1.0", path = "network_simplex" }
+just_emd = { git = "https://github.com/cpitsch/just-emd", version = "0.1.0"}
 process_mining = "0.3.14"
 rand = "0.8.5"

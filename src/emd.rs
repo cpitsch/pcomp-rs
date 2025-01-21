@@ -1,5 +1,5 @@
+use just_emd::{EmdResult, EmdSolver};
 use ndarray::{Array1, Array2};
-use network_simplex::{EmdResult, EmdSolver};
 
 pub fn compute_emd(
     mut frequencies_1: Array1<f64>,
