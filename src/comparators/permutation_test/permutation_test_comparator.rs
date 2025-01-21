@@ -4,6 +4,8 @@ use itertools::Itertools;
 use ndarray::Array2;
 use process_mining::EventLog;
 use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
+#[cfg(feature = "parallel")]
+use rayon::prelude::*;
 
 use crate::{
     comparators::common::stochastic_language::StochasticLanguage, emd::compute_emd,
@@ -19,7 +21,7 @@ pub struct PermutationTestComparisonResult {
 
 pub trait PermutationTestComparator<T>
 where
-    T: Hash + Eq + Clone + Ord + Debug,
+    T: Hash + Eq + Clone + Ord + Debug + std::marker::Sync,
 {
     // fn extract_representation(&self, trace: &Trace) -> T;
     fn cost(&self, rep_1: &T, rep_2: &T) -> f64;
@@ -144,7 +146,7 @@ pub fn project_distance_matrix<T: Clone + Eq + Hash>(
     selected_rows.select(ndarray::Axis(1), &pop_2_indices)
 }
 
-pub fn compute_permutation_test_distribution<T: PartialEq>(
+pub fn compute_permutation_test_distribution<T: PartialEq + std::marker::Sync>(
     dists: &Array2<f64>,
     distance_matrix_source_population: Vec<T>,
     behavior_1: Vec<T>,
@@ -163,17 +165,30 @@ pub fn compute_permutation_test_distribution<T: PartialEq>(
         .collect();
     let sample_size = behavior_1.len() + behavior_2.len();
 
-    let mut rng = StdRng::from_entropy();
+    // For now. Soon, the seed will be added as a parameter.
+    let s: Option<u64> = None;
+    let mut rng = if let Some(seed) = s {
+        StdRng::seed_from_u64(seed)
+    } else {
+        StdRng::from_entropy()
+    };
 
     let progress = build_progress_bar(
         distribution_size as u64,
         "Computing permutation EMD distribution".into(),
     );
-    let res = (0..distribution_size)
-        .map(|_| {
-            let mut sample = (0..sample_size).collect_vec();
-            sample.partial_shuffle(&mut rng, behavior_1.len());
-            let (sample_1, sample_2) = sample.split_at(behavior_1.len());
+
+    let iterator = (0..distribution_size as u64).map(|_| {
+        let mut sample = Vec::from_iter(0..sample_size);
+        sample.partial_shuffle(&mut rng, behavior_1.len());
+        let (sample_1, sample_2) = sample.split_at(behavior_1.len());
+        (sample_1.to_vec(), sample_2.to_vec())
+    });
+    #[cfg(feature = "parallel")]
+    let iterator = iterator.par_bridge();
+
+    let res = iterator
+        .map(|(sample_1, sample_2)| {
             let translated_sample_1: StochasticLanguage<usize> = sample_1
                 .iter()
                 .map(|index| population_indices_to_variant_indices[*index])
