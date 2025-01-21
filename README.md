@@ -1,12 +1,40 @@
+A rust implementation of a permutation test approach for process hypothesis testing (PHT).
 
-## Rust Optimal Transport
-- Rust optimal transport depends on the `openblas-src` crate which (on Windows) requires an installation of `OpenBlas` using `vcpkg`.
-- This installation is a relatively convoluted process, so here it is:
-    - Clone the [vcpkg](https://github.com/Microsoft/vcpkg) repository
-    - Execute `bootstrap-vcpkg.bat`
-    - Add the root of the vcpkg repository to your PATH
-    - Execute `vcpkg integrate install`
-    - Install OpenBlas: `vcpkg install openblas --triplet x64-windows`  (Following the instructions on the [openblas-src](https://github.com/blas-lapack-rs/openblas-src) repo)
-    - This (for me) gave a linking error. Download the release from the OpenBlas repository, and replace the files that vcpkg installed with these. Be sure to rename all `libopenblas.<...>` files to `openblas.<...>`.
-        -  For more information, see [this issue](https://github.com/rust-ndarray/ndarray-linalg/issues/369)
+## Example
+
+```rust
+use pcomprs::comparators::{
+    bootstrap::{
+        bootstrap_comparator::BootstrapTestComparator, control_flow::ControlFlowBootstrapComparator,
+    },
+    permutation_test::{
+        permutation_test_comparator::PermutationTestComparator,
+        timed_levenshtein::TimedLevenshteinPermutationComparator,
+    },
+};
+use process_mining::{import_xes_file, XESImportOptions};
+
+let seed = 1337;
+let log_1 = import_xes_file("path/to/log_1.xes.gz", XESImportOptions::default()).unwrap();
+let log_2 = import_xes_file("path/to/log_2.xes.gz", XESImportOptions::default()).unwrap();
+
+let permutation_result =
+    TimedLevenshteinPermutationComparator::default().compare(&log_1, &log_2, 10_000);
+println!(
+    "Timed Control Flow Permutation Test: {}",
+    permutation_result.pvalue
+);
+
+// Or:
+
+let bootstrap_result = ControlFlowBootstrapComparator.compare(
+    &log_1,
+    &log_2,
+    log_1.traces.len(),
+    10_000,
+    Some(seed),
+);
+println!("Control Flow Bootstrap Test: {}", bootstrap_result.pvalue);
+```
+
 
