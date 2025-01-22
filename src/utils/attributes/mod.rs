@@ -1,4 +1,4 @@
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, FixedOffset};
 use process_mining::event_log::{Attributes, Event, Trace, XESEditableAttribute};
 
 use crate::utils::constants::{ACTIVITY_KEY, START_TIMESTAMP_KEY, TIMESTAMP_KEY};
@@ -19,7 +19,7 @@ impl HasAttributes for Event {
     }
 }
 
-pub fn get_time_by_key(from: &impl HasAttributes, key: &str) -> Option<DateTime<Utc>> {
+pub fn get_time_by_key(from: &impl HasAttributes, key: &str) -> Option<DateTime<FixedOffset>> {
     from.get_attributes()
         .get_by_key(key)?
         .value
@@ -38,11 +38,11 @@ pub fn get_activity_label(event: &Event) -> Option<String> {
     get_string_by_key(event, ACTIVITY_KEY)
 }
 
-pub fn get_start_timestamp(event: &Event) -> Option<DateTime<Utc>> {
+pub fn get_start_timestamp(event: &Event) -> Option<DateTime<FixedOffset>> {
     get_time_by_key(event, START_TIMESTAMP_KEY)
 }
 
-pub fn get_complete_timestamp(event: &Event) -> Option<DateTime<Utc>> {
+pub fn get_complete_timestamp(event: &Event) -> Option<DateTime<FixedOffset>> {
     get_time_by_key(event, TIMESTAMP_KEY)
 }
 

@@ -1,6 +1,3 @@
-// Implementation altered from https://www.github.com/xgillard/clustering
-// Added seeding
-
 // Copyright 2022 Xavier Gillard
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
@@ -20,6 +17,9 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+//! Implementation altered from https://www.github.com/xgillard/clustering
+//! Added seeding
+//!
 //! This crate provides an easy and efficient way to perform kmeans
 //! clustering on arbitrary data. The algo is initialized with kmeans++
 //! for best performance of the clustering.
@@ -151,12 +151,11 @@ fn initialize<T: Elem>(k: usize, elems: &[T], seed: Option<u64>) -> Vec<Centroid
     let mut taken = vec![false; elems.len()];
     let mut centroids = vec![];
 
-    let mut rng = if let Some(seed) = seed {
-        rand::rngs::StdRng::seed_from_u64(seed)
+    let first = if let Some(seed) = seed {
+        rand::rngs::StdRng::seed_from_u64(seed).gen::<usize>()
     } else {
-        rand::rngs::StdRng::from_entropy()
-    };
-    let first = rng.gen::<usize>() % elems.len();
+        rand::random::<usize>()
+    } % elems.len();
 
     taken[first] = true;
     centroids.push(new_centroid(&elems[first]));
