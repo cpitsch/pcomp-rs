@@ -1,4 +1,4 @@
-use std::{collections::HashMap, usize};
+use std::{collections::HashMap, marker::PhantomData};
 
 pub mod kmeans_binner;
 pub mod outer_percentile_binner;
@@ -13,7 +13,9 @@ pub trait Binner<U> {
 
 pub struct BinnerManager<U, T: Binner<U>> {
     binners: HashMap<String, T>,
-    _phantom: Option<U>,
+
+    #[doc(hidden)]
+    _phantom: PhantomData<U>,
 }
 
 impl<U, T> BinnerManager<U, T>
@@ -37,7 +39,7 @@ where
 
         BinnerManager {
             binners,
-            _phantom: None,
+            _phantom: PhantomData,
         }
     }
 }
