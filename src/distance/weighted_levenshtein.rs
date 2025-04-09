@@ -1,4 +1,4 @@
-use std::{cmp::max, usize};
+use std::cmp::max;
 
 use ndarray::Array2;
 

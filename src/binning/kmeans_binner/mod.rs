@@ -42,7 +42,9 @@ impl Binner<f64> for KMeansBinner {
             .centroids
             .into_iter()
             .map(|mut centroid| centroid.0.pop().unwrap())
-            .sorted_by(|x, y| x.partial_cmp(y).unwrap())
+            // Sort the centroids to give the bin indices better "semantics"
+            // (higher bin = higher number)
+            .sorted_by(|x, y| x.total_cmp(y))
             .collect();
         Self { centroids, args }
     }
@@ -56,7 +58,7 @@ impl Binner<f64> for KMeansBinner {
             .iter()
             .map(|val| (data - val).abs())
             .enumerate()
-            .min_by(|x, y| x.1.partial_cmp(&y.1).unwrap())
+            .min_by(|x, y| x.1.total_cmp(&y.1))
             .unwrap()
             .0
     }

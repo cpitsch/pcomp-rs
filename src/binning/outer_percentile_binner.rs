@@ -37,7 +37,7 @@ fn percentile(data: &mut [f64], percentile: f64) -> f64 {
         panic!("Invalid percentile.")
     }
 
-    data.sort_by(|a, b| a.partial_cmp(b).unwrap());
+    data.sort_by(|a, b| a.total_cmp(b));
 
     let rank = percentile / 100.0 * (data.len() - 1) as f64;
     let lower_index = rank.floor() as usize;

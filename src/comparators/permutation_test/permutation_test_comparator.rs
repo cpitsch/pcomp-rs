@@ -140,8 +140,9 @@ pub fn project_distance_matrix<T: Clone + Eq + Hash>(
         })
         .collect();
 
-    let selected_rows = dists.select(ndarray::Axis(0), &pop_1_indices);
-    selected_rows.select(ndarray::Axis(1), &pop_2_indices)
+    dists
+        .select(ndarray::Axis(0), &pop_1_indices)
+        .select(ndarray::Axis(1), &pop_2_indices)
 }
 
 pub fn compute_permutation_test_distribution<T: PartialEq>(

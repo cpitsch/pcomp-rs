@@ -3,13 +3,16 @@ use std::fmt::Write;
 use indicatif::{ProgressBar, ProgressState, ProgressStyle};
 
 pub fn build_progress_bar(total: u64, message: String) -> ProgressBar {
-    let mut padded_message = String::from(" ");
-    padded_message.push_str(message.as_str());
-    padded_message.push(' ');
-
-    if message.is_empty() {
-        padded_message = message;
-    }
+    // Pad the message with a space on each side, or leave it empty
+    let padded_message = if message.is_empty() {
+        message
+    } else {
+        let mut padded_message = String::with_capacity(message.len() + 2);
+        padded_message.push(' ');
+        padded_message.push_str(&message);
+        padded_message.push(' ');
+        padded_message
+    };
 
     ProgressBar::new(total)
         .with_message(padded_message)
