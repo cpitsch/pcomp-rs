@@ -48,9 +48,11 @@ pub struct Centroid(pub Vec<f64>);
 /// This is the result of a kmeans clustering
 pub struct Clustering<'a, T> {
     /// The set of elements that have been clustered (in that order)
+    #[allow(dead_code)]
     pub elements: &'a [T],
     /// The membership assignment
     /// membership[i] = y means that element[i] belongs to cluster y
+    #[allow(dead_code)]
     pub membership: Vec<usize>,
     /// The centroids of the clusters in this given clustering
     pub centroids: Vec<Centroid>,
