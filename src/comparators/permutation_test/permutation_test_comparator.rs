@@ -31,6 +31,14 @@ where
         log_2: &EventLog,
     ) -> AttributeResult<(Vec<T>, Vec<T>)>;
 
+    /// Compare two event logs.
+    ///
+    /// - Returns an `Err` if required attributes are not present on the events.
+    ///     - For a control-flow comparison, this is the activity label `concept:name`
+    ///     - For timed control flow, this is additionally the start and completion timestamps
+    ///         `start_timestamp` and `time:timestamp`.
+    ///         - In case you are using an event log without `start_timestamp`, see
+    ///             [crate::comparators::common::preparation::ensure_start_timestamp_key]
     fn compare(
         &self,
         log_1: &EventLog,
@@ -39,6 +47,7 @@ where
     ) -> AttributeResult<PermutationTestComparisonResult> {
         let (behavior_1, behavior_2) = self.extract_representations(log_1, log_2)?;
 
+        // TODO: Why dont I sort and then dedup?
         let mut combined_variants: Vec<T> = behavior_1 // Use a Vec so the order is fixed
             .iter()
             .chain(behavior_2.iter())

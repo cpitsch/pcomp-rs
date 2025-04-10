@@ -34,6 +34,14 @@ where
         log_2: &EventLog,
     ) -> AttributeResult<(Vec<T>, Vec<T>)>;
 
+    /// Compare two event logs.
+    ///
+    /// - Returns an `Err` if required attributes are not present on the events.
+    ///     - For a control-flow comparison, this is the activity label `concept:name`
+    ///     - For timed control flow, this is additionally the start and completion timestamps
+    ///         `start_timestamp` and `time:timestamp`.
+    ///         - In case you are using an event log without `start_timestamp`, see
+    ///             [crate::comparators::common::preparation::ensure_start_timestamp_key]
     fn compare(
         &self,
         log_1: &EventLog,
