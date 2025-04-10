@@ -6,7 +6,7 @@ use process_mining::event_log::{
     Attribute, AttributeValue, Attributes, Event, Trace, XESEditableAttribute,
 };
 
-use crate::utils::constants::{ACTIVITY_KEY, START_TIMESTAMP_KEY, TIMESTAMP_KEY};
+use crate::utils::constants::{ACTIVITY_KEY, LIFECYCLE_KEY, START_TIMESTAMP_KEY, TIMESTAMP_KEY};
 
 pub trait HasAttributes {
     const ATTRIBUTE_LEVEL: AttributeLevel;
@@ -121,4 +121,8 @@ pub fn get_service_time(event: &Event) -> AttributeResult<chrono::TimeDelta> {
     let start = get_start_timestamp(event)?;
     let end = get_complete_timestamp(event)?;
     Ok(end - start)
+}
+
+pub fn get_lifecycle(event: &Event) -> AttributeResult<String> {
+    get_string_by_key(event, LIFECYCLE_KEY)
 }
