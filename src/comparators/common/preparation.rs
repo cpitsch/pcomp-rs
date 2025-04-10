@@ -8,7 +8,7 @@ use std::collections::{HashMap, VecDeque};
 use crate::utils::{
     attributes::{
         add_or_overwrite_attribute, attribute_error::AttributeResult, get_activity_label,
-        get_complete_timestamp, get_lifecycle, HasAttributes,
+        get_complete_timestamp, get_instance_id, get_lifecycle, HasAttributes,
     },
     constants::{INSTANCE_ID_KEY, LIFECYCLE_KEY, START_TIMESTAMP_KEY},
     retain_err::retain_mut_err,
@@ -65,13 +65,17 @@ pub fn infer_event_instance_id(trace: &mut Trace) -> AttributeResult<()> {
                 add_or_overwrite_attribute(
                     evt,
                     INSTANCE_ID_KEY,
-                    AttributeValue::Int(instance_id as i64),
+                    AttributeValue::String(instance_id.to_string()),
                 );
             }
             Ok("start") => {
                 let pending_ids = pending_instance_ids.entry(activity).or_default();
                 current_id += 1;
-                add_or_overwrite_attribute(evt, INSTANCE_ID_KEY, AttributeValue::Int(current_id));
+                add_or_overwrite_attribute(
+                    evt,
+                    INSTANCE_ID_KEY,
+                    AttributeValue::String(current_id.to_string()),
+                );
                 pending_ids.push_back(current_id);
             }
             Ok(x) => {
@@ -112,12 +116,12 @@ pub fn fold_instance_id_to_start_timestamps(trace: &mut Trace) -> AttributeResul
     // 2. Delete the start event after adding it to the hashmap
     // 3. When complete event encountered, get its timestamp from the HashMap (or
     //    default to its own timestamp) and set the start timestamp
-    let mut timestamps: HashMap<i64, DateTime<FixedOffset>> = HashMap::new();
+    let mut timestamps: HashMap<String, DateTime<FixedOffset>> = HashMap::new();
 
     // Use retain to remove the start timestamps, and take care of the start_timestamps
     // as a side-effect.
     retain_mut_err(&mut trace.events, |event| -> AttributeResult<bool> {
-        let id = event.get_int_by_key(INSTANCE_ID_KEY)?;
+        let id = get_instance_id(event)?;
         match get_lifecycle(event)?.as_str() {
             "start" => {
                 let timestamp = get_complete_timestamp(event)?;
@@ -260,7 +264,7 @@ mod tests {
             add_or_overwrite_attribute(
                 evt,
                 INSTANCE_ID_KEY,
-                AttributeValue::Int(instance_id.parse().unwrap()),
+                AttributeValue::String(instance_id.to_string()),
             );
         });
     }

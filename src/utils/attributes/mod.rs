@@ -6,7 +6,9 @@ use process_mining::event_log::{
     Attribute, AttributeValue, Attributes, Event, Trace, XESEditableAttribute,
 };
 
-use crate::utils::constants::{ACTIVITY_KEY, LIFECYCLE_KEY, START_TIMESTAMP_KEY, TIMESTAMP_KEY};
+use crate::utils::constants::{
+    ACTIVITY_KEY, INSTANCE_ID_KEY, LIFECYCLE_KEY, START_TIMESTAMP_KEY, TIMESTAMP_KEY,
+};
 
 pub trait HasAttributes {
     const ATTRIBUTE_LEVEL: AttributeLevel;
@@ -123,4 +125,9 @@ pub fn get_service_time(event: &Event) -> AttributeResult<chrono::TimeDelta> {
 
 pub fn get_lifecycle(event: &Event) -> AttributeResult<String> {
     event.get_string_by_key(LIFECYCLE_KEY)
+}
+
+/// Get the instance ID of the event which, according to the standard, is a string.
+pub fn get_instance_id(event: &Event) -> AttributeResult<String> {
+    event.get_string_by_key(INSTANCE_ID_KEY)
 }
