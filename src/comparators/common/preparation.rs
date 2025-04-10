@@ -8,7 +8,7 @@ use std::collections::{HashMap, VecDeque};
 use crate::utils::{
     attributes::{
         add_or_overwrite_attribute, attribute_error::AttributeResult, get_activity_label,
-        get_complete_timestamp, get_int_by_key, get_lifecycle, HasAttributes,
+        get_complete_timestamp, get_lifecycle, HasAttributes,
     },
     constants::{INSTANCE_ID_KEY, LIFECYCLE_KEY, START_TIMESTAMP_KEY},
     retain_err::retain_mut_err,
@@ -117,7 +117,7 @@ pub fn fold_instance_id_to_start_timestamps(trace: &mut Trace) -> AttributeResul
     // Use retain to remove the start timestamps, and take care of the start_timestamps
     // as a side-effect.
     retain_mut_err(&mut trace.events, |event| -> AttributeResult<bool> {
-        let id = get_int_by_key(event, INSTANCE_ID_KEY)?;
+        let id = event.get_int_by_key(INSTANCE_ID_KEY)?;
         match get_lifecycle(event)?.as_str() {
             "start" => {
                 let timestamp = get_complete_timestamp(event)?;

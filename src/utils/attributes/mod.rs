@@ -25,8 +25,48 @@ pub trait HasAttributes {
             ))
     }
 
-    fn attribute_level(&self) -> AttributeLevel {
-        Self::ATTRIBUTE_LEVEL
+    fn get_string_by_key(&self, key: &str) -> AttributeResult<String> {
+        let attribute = self.get_attribute_by_key(key)?;
+        attribute.value.try_as_string().cloned().ok_or_else(|| {
+            AttributeError::new(
+                Self::ATTRIBUTE_LEVEL,
+                key,
+                AttributeErrorKind::TypeMismatch("String".to_string(), attribute.value.clone()),
+            )
+        })
+    }
+
+    fn get_time_by_key(&self, key: &str) -> AttributeResult<DateTime<FixedOffset>> {
+        let attribute = self.get_attribute_by_key(key)?;
+        attribute.value.try_as_date().copied().ok_or_else(|| {
+            AttributeError::new(
+                Self::ATTRIBUTE_LEVEL,
+                key,
+                AttributeErrorKind::TypeMismatch("Date".to_string(), attribute.value.clone()),
+            )
+        })
+    }
+
+    fn get_int_by_key(&self, key: &str) -> AttributeResult<i64> {
+        let attribute = self.get_attribute_by_key(key)?;
+        attribute.value.try_as_int().copied().ok_or_else(|| {
+            AttributeError::new(
+                Self::ATTRIBUTE_LEVEL,
+                key,
+                AttributeErrorKind::TypeMismatch("Int".to_string(), attribute.value.clone()),
+            )
+        })
+    }
+
+    fn get_float_by_key(&self, key: &str) -> AttributeResult<f64> {
+        let attribute = self.get_attribute_by_key(key)?;
+        attribute.value.try_as_float().copied().ok_or_else(|| {
+            AttributeError::new(
+                Self::ATTRIBUTE_LEVEL,
+                key,
+                AttributeErrorKind::TypeMismatch("Float".to_string(), attribute.value.clone()),
+            )
+        })
     }
 }
 
@@ -63,58 +103,16 @@ pub fn add_or_overwrite_attribute(on: &mut impl HasAttributes, key: &str, value:
     }
 }
 
-pub fn get_time_by_key(
-    from: &impl HasAttributes,
-    key: &str,
-) -> AttributeResult<DateTime<FixedOffset>> {
-    let attribute = from.get_attribute_by_key(key)?;
-    attribute
-        .value
-        .try_as_date()
-        .ok_or(AttributeError::new(
-            from.attribute_level(),
-            key,
-            AttributeErrorKind::TypeMismatch("DateTime".to_string(), attribute.value.clone()),
-        ))
-        .copied()
-}
-
-pub fn get_string_by_key(from: &impl HasAttributes, key: &str) -> AttributeResult<String> {
-    let attribute = from.get_attribute_by_key(key)?;
-    attribute
-        .value
-        .try_as_string()
-        .ok_or(AttributeError::new(
-            from.attribute_level(),
-            key,
-            AttributeErrorKind::TypeMismatch("String".to_string(), attribute.value.clone()),
-        ))
-        .cloned()
-}
-
-pub fn get_int_by_key(from: &impl HasAttributes, key: &str) -> AttributeResult<i64> {
-    let attribute = from.get_attribute_by_key(key)?;
-    attribute
-        .value
-        .try_as_int()
-        .ok_or(AttributeError::new(
-            from.attribute_level(),
-            key,
-            AttributeErrorKind::TypeMismatch("Int".to_string(), attribute.value.clone()),
-        ))
-        .copied()
-}
-
 pub fn get_activity_label(event: &Event) -> AttributeResult<String> {
-    get_string_by_key(event, ACTIVITY_KEY)
+    event.get_string_by_key(ACTIVITY_KEY)
 }
 
 pub fn get_start_timestamp(event: &Event) -> AttributeResult<DateTime<FixedOffset>> {
-    get_time_by_key(event, START_TIMESTAMP_KEY)
+    event.get_time_by_key(START_TIMESTAMP_KEY)
 }
 
 pub fn get_complete_timestamp(event: &Event) -> AttributeResult<DateTime<FixedOffset>> {
-    get_time_by_key(event, TIMESTAMP_KEY)
+    event.get_time_by_key(TIMESTAMP_KEY)
 }
 
 pub fn get_service_time(event: &Event) -> AttributeResult<chrono::TimeDelta> {
@@ -124,5 +122,5 @@ pub fn get_service_time(event: &Event) -> AttributeResult<chrono::TimeDelta> {
 }
 
 pub fn get_lifecycle(event: &Event) -> AttributeResult<String> {
-    get_string_by_key(event, LIFECYCLE_KEY)
+    event.get_string_by_key(LIFECYCLE_KEY)
 }
