@@ -19,6 +19,12 @@ pub struct TimedLevenshteinPermutationComparator {
     binner_args: KMeansArgs,
 }
 
+impl TimedLevenshteinPermutationComparator {
+    pub fn new(binner_args: KMeansArgs) -> Self {
+        Self { binner_args }
+    }
+}
+
 impl PermutationTestComparator<Vec<(String, usize)>> for TimedLevenshteinPermutationComparator {
     fn extract_representations(
         &self,
