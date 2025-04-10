@@ -6,8 +6,9 @@ use process_mining::EventLog;
 use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
 
 use crate::{
-    comparators::common::stochastic_language::StochasticLanguage, emd::compute_emd,
-    utils::progress::build_progress_bar,
+    comparators::common::stochastic_language::StochasticLanguage,
+    emd::compute_emd,
+    utils::{attributes::attribute_error::AttributeResult, progress::build_progress_bar},
 };
 
 #[derive(Debug)]
@@ -24,15 +25,19 @@ where
     // fn extract_representation(&self, trace: &Trace) -> T;
     fn cost(&self, rep_1: &T, rep_2: &T) -> f64;
 
-    fn extract_representations(&self, log_1: &EventLog, log_2: &EventLog) -> (Vec<T>, Vec<T>);
+    fn extract_representations(
+        &self,
+        log_1: &EventLog,
+        log_2: &EventLog,
+    ) -> AttributeResult<(Vec<T>, Vec<T>)>;
 
     fn compare(
         &self,
         log_1: &EventLog,
         log_2: &EventLog,
         distribution_size: usize,
-    ) -> PermutationTestComparisonResult {
-        let (behavior_1, behavior_2) = self.extract_representations(log_1, log_2);
+    ) -> AttributeResult<PermutationTestComparisonResult> {
+        let (behavior_1, behavior_2) = self.extract_representations(log_1, log_2)?;
 
         let mut combined_variants: Vec<T> = behavior_1 // Use a Vec so the order is fixed
             .iter()
@@ -76,11 +81,11 @@ where
             .len() as f64
             / distribution_size as f64;
 
-        PermutationTestComparisonResult {
+        Ok(PermutationTestComparisonResult {
             logs_emd,
             pvalue,
             permutation_emds,
-        }
+        })
     }
 
     fn compute_symmetric_distance_matrix(&self, variants: &[T]) -> Array2<f64> {
