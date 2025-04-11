@@ -52,9 +52,8 @@ pub fn infer_event_instance_id(trace: &mut Trace) -> AttributeResult<()> {
 
     for evt in trace.events.iter_mut() {
         let activity = get_activity_label(evt)?;
-        match get_lifecycle(evt).as_deref() {
-            Err(_) => panic!("Call infer_lifecycle_information first!"),
-            Ok("complete") => {
+        match get_lifecycle(evt)?.as_ref() {
+            "complete" => {
                 let pending_ids = pending_instance_ids.entry(activity).or_default();
                 let instance_id = pending_ids.pop_front().unwrap_or_else(|| {
                     // If there is no corresponding start event, this event will
@@ -68,7 +67,7 @@ pub fn infer_event_instance_id(trace: &mut Trace) -> AttributeResult<()> {
                     AttributeValue::String(instance_id.to_string()),
                 );
             }
-            Ok("start") => {
+            "start" => {
                 let pending_ids = pending_instance_ids.entry(activity).or_default();
                 current_id += 1;
                 add_or_overwrite_attribute(
@@ -78,9 +77,7 @@ pub fn infer_event_instance_id(trace: &mut Trace) -> AttributeResult<()> {
                 );
                 pending_ids.push_back(current_id);
             }
-            Ok(x) => {
-                panic!("Lifecycle not supported: {x}")
-            }
+            _ => { /* WARN: Ignoring events with different lifecycle transition */ }
         }
     }
 
