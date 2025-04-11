@@ -44,6 +44,7 @@ where
         log_1: &EventLog,
         log_2: &EventLog,
         distribution_size: usize,
+        seed: Option<u64>,
     ) -> AttributeResult<PermutationTestComparisonResult> {
         let (behavior_1, behavior_2) = self.extract_representations(log_1, log_2)?;
 
@@ -81,6 +82,7 @@ where
             behavior_1,
             behavior_2,
             distribution_size,
+            seed,
         );
 
         let pvalue = permutation_emds
@@ -165,6 +167,7 @@ pub fn compute_permutation_test_distribution<T: PartialEq>(
     behavior_1: Vec<T>,
     behavior_2: Vec<T>,
     distribution_size: usize,
+    seed: Option<u64>,
 ) -> Vec<f64> {
     let population_indices_to_variant_indices: Vec<usize> = behavior_1
         .iter()
@@ -178,7 +181,11 @@ pub fn compute_permutation_test_distribution<T: PartialEq>(
         .collect();
     let sample_size = behavior_1.len() + behavior_2.len();
 
-    let mut rng = StdRng::from_entropy();
+    let mut rng = if let Some(s) = seed {
+        StdRng::seed_from_u64(s)
+    } else {
+        StdRng::from_entropy()
+    };
 
     let progress = build_progress_bar(
         distribution_size as u64,
