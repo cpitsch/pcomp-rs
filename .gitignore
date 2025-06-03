@@ -2,4 +2,8 @@
 
 Cargo.lock
 
-main.rs
+src/main.rs
+
+# Event Logs
+*.xes
+*.xes.gz
