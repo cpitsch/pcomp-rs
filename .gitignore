@@ -1,3 +1,9 @@
 /target
 
 Cargo.lock
+
+src/main.rs
+
+# Event Logs
+*.xes
+*.xes.gz

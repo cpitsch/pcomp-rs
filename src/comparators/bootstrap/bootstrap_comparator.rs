@@ -10,8 +10,9 @@ use rand::{
 };
 
 use crate::{
-    comparators::common::stochastic_language::StochasticLanguage, emd::compute_emd,
-    utils::progress::build_progress_bar,
+    comparators::common::stochastic_language::StochasticLanguage,
+    emd::compute_emd,
+    utils::{attributes::attribute_error::AttributeResult, progress::build_progress_bar},
 };
 
 #[derive(Debug)]
@@ -27,8 +28,20 @@ where
 {
     fn cost(&self, rep_1: &T, rep_2: &T) -> f64;
 
-    fn extract_representations(&self, log_1: &EventLog, log_2: &EventLog) -> (Vec<T>, Vec<T>);
+    fn extract_representations(
+        &self,
+        log_1: &EventLog,
+        log_2: &EventLog,
+    ) -> AttributeResult<(Vec<T>, Vec<T>)>;
 
+    /// Compare two event logs.
+    ///
+    /// - Returns an `Err` if required attributes are not present on the events.
+    ///     - For a control-flow comparison, this is the activity label `concept:name`
+    ///     - For timed control flow, this is additionally the start and completion timestamps
+    ///         `start_timestamp` and `time:timestamp`.
+    ///         - In case you are using an event log without `start_timestamp`, see
+    ///             [crate::comparators::common::preparation::ensure_start_timestamp_key]
     fn compare(
         &self,
         log_1: &EventLog,
@@ -36,8 +49,8 @@ where
         resample_size: usize,
         distribution_size: usize,
         seed: Option<u64>,
-    ) -> BootstrapTestComparisonResult {
-        let (behavior_1, behavior_2) = self.extract_representations(log_1, log_2);
+    ) -> AttributeResult<BootstrapTestComparisonResult> {
+        let (behavior_1, behavior_2) = self.extract_representations(log_1, log_2)?;
 
         let stoch_lang_1 = StochasticLanguage::from_items(behavior_1);
         let stoch_lang_2 = StochasticLanguage::from_items(behavior_2);
@@ -59,11 +72,11 @@ where
             .len() as f64
             / distribution_size as f64;
 
-        BootstrapTestComparisonResult {
+        Ok(BootstrapTestComparisonResult {
             logs_emd,
             bootstrap_emds,
             pvalue,
-        }
+        })
     }
 
     fn compute_distance_matrix(&self, variants_1: &[T], variants_2: &[T]) -> Array2<f64> {

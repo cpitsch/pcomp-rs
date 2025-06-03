@@ -2,41 +2,35 @@ use process_mining::{event_log::Trace, EventLog};
 
 use crate::{
     binning::{Binner, BinnerManager},
-    utils::{
-        attributes::{get_activity_label, get_service_time},
-        constants::{NO_ACTIVITY_LABEL_MSG, NO_START_TIMESTAMP_MSG},
-    },
+    utils::attributes::{attribute_error::AttributeResult, get_activity_label, get_service_time},
 };
 
-pub fn project_trace_on_activity(trace: &Trace) -> Vec<String> {
+pub fn project_trace_on_activity(trace: &Trace) -> AttributeResult<Vec<String>> {
     trace
         .events
         .iter()
-        .map(|event| get_activity_label(event).expect(NO_ACTIVITY_LABEL_MSG))
+        .map(|event| get_activity_label(event))
         .collect()
 }
 
-pub fn project_traces_on_activity(log: &EventLog) -> Vec<Vec<String>> {
+pub fn project_traces_on_activity(log: &EventLog) -> AttributeResult<Vec<Vec<String>>> {
     log.traces.iter().map(project_trace_on_activity).collect()
 }
 
-pub fn trace_to_service_time_trace(trace: &Trace) -> Vec<(String, f64)> {
+pub fn trace_to_service_time_trace(trace: &Trace) -> AttributeResult<Vec<(String, f64)>> {
     trace
         .events
         .iter()
         .map(|evt| {
-            (
-                get_activity_label(evt).expect(NO_ACTIVITY_LABEL_MSG),
-                get_service_time(evt)
-                    .expect(NO_START_TIMESTAMP_MSG)
-                    .num_milliseconds() as f64
-                    / 1000.0,
-            )
+            Ok((
+                get_activity_label(evt)?,
+                get_service_time(evt)?.num_milliseconds() as f64 / 1000.0,
+            ))
         })
         .collect()
 }
 
-pub fn extract_service_time_traces(log: &EventLog) -> Vec<Vec<(String, f64)>> {
+pub fn extract_service_time_traces(log: &EventLog) -> AttributeResult<Vec<Vec<(String, f64)>>> {
     log.traces.iter().map(trace_to_service_time_trace).collect()
 }
 

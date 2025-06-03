@@ -6,8 +6,9 @@ use process_mining::EventLog;
 use rand::{rngs::StdRng, seq::SliceRandom, SeedableRng};
 
 use crate::{
-    comparators::common::stochastic_language::StochasticLanguage, emd::compute_emd,
-    utils::progress::build_progress_bar,
+    comparators::common::stochastic_language::StochasticLanguage,
+    emd::compute_emd,
+    utils::{attributes::attribute_error::AttributeResult, progress::build_progress_bar},
 };
 
 #[derive(Debug)]
@@ -24,16 +25,30 @@ where
     // fn extract_representation(&self, trace: &Trace) -> T;
     fn cost(&self, rep_1: &T, rep_2: &T) -> f64;
 
-    fn extract_representations(&self, log_1: &EventLog, log_2: &EventLog) -> (Vec<T>, Vec<T>);
+    fn extract_representations(
+        &self,
+        log_1: &EventLog,
+        log_2: &EventLog,
+    ) -> AttributeResult<(Vec<T>, Vec<T>)>;
 
+    /// Compare two event logs.
+    ///
+    /// - Returns an `Err` if required attributes are not present on the events.
+    ///     - For a control-flow comparison, this is the activity label `concept:name`
+    ///     - For timed control flow, this is additionally the start and completion timestamps
+    ///         `start_timestamp` and `time:timestamp`.
+    ///         - In case you are using an event log without `start_timestamp`, see
+    ///             [crate::comparators::common::preparation::ensure_start_timestamp_key]
     fn compare(
         &self,
         log_1: &EventLog,
         log_2: &EventLog,
         distribution_size: usize,
-    ) -> PermutationTestComparisonResult {
-        let (behavior_1, behavior_2) = self.extract_representations(log_1, log_2);
+        seed: Option<u64>,
+    ) -> AttributeResult<PermutationTestComparisonResult> {
+        let (behavior_1, behavior_2) = self.extract_representations(log_1, log_2)?;
 
+        // TODO: Why dont I sort and then dedup?
         let mut combined_variants: Vec<T> = behavior_1 // Use a Vec so the order is fixed
             .iter()
             .chain(behavior_2.iter())
@@ -67,6 +82,7 @@ where
             behavior_1,
             behavior_2,
             distribution_size,
+            seed,
         );
 
         let pvalue = permutation_emds
@@ -76,11 +92,11 @@ where
             .len() as f64
             / distribution_size as f64;
 
-        PermutationTestComparisonResult {
+        Ok(PermutationTestComparisonResult {
             logs_emd,
             pvalue,
             permutation_emds,
-        }
+        })
     }
 
     fn compute_symmetric_distance_matrix(&self, variants: &[T]) -> Array2<f64> {
@@ -151,6 +167,7 @@ pub fn compute_permutation_test_distribution<T: PartialEq>(
     behavior_1: Vec<T>,
     behavior_2: Vec<T>,
     distribution_size: usize,
+    seed: Option<u64>,
 ) -> Vec<f64> {
     let population_indices_to_variant_indices: Vec<usize> = behavior_1
         .iter()
@@ -164,7 +181,11 @@ pub fn compute_permutation_test_distribution<T: PartialEq>(
         .collect();
     let sample_size = behavior_1.len() + behavior_2.len();
 
-    let mut rng = StdRng::from_entropy();
+    let mut rng = if let Some(s) = seed {
+        StdRng::seed_from_u64(s)
+    } else {
+        StdRng::from_entropy()
+    };
 
     let progress = build_progress_bar(
         distribution_size as u64,

@@ -3,6 +3,7 @@ use process_mining::EventLog;
 use crate::{
     comparators::common::extraction::project_traces_on_activity,
     distance::weighted_levenshtein::postnormalized_weighted_levenshtein_distance,
+    utils::attributes::attribute_error::AttributeResult,
 };
 
 use super::bootstrap_comparator::BootstrapTestComparator;
@@ -14,11 +15,11 @@ impl BootstrapTestComparator<Vec<String>> for ControlFlowBootstrapComparator {
         &self,
         log_1: &EventLog,
         log_2: &EventLog,
-    ) -> (Vec<Vec<String>>, Vec<Vec<String>>) {
-        (
-            project_traces_on_activity(log_1),
-            project_traces_on_activity(log_2),
-        )
+    ) -> AttributeResult<(Vec<Vec<String>>, Vec<Vec<String>>)> {
+        Ok((
+            project_traces_on_activity(log_1)?,
+            project_traces_on_activity(log_2)?,
+        ))
     }
 
     fn cost(&self, rep_1: &Vec<String>, rep_2: &Vec<String>) -> f64 {
