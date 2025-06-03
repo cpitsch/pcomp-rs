@@ -12,6 +12,10 @@ pub fn weighted_levenshtein_distance<T>(trace_1: &[T], trace_2: &[T]) -> f64
 where
     T: LevenshteinDistance,
 {
+    if trace_1 == trace_2 {
+        return 0.0;
+    }
+
     let len_1 = trace_1.len();
     let len_2 = trace_2.len();
 

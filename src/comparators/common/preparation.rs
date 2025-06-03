@@ -43,6 +43,10 @@ pub fn infer_lifecycle_information_log(log: &mut EventLog) {
 /// case, this event never completed.
 ///
 /// Events with a lifecycle transition other than "start" or "complete" are ignored.
+///
+///
+/// Returns an `Err` if the "lifecycle:transition" or "concept:name" attribute
+/// does not exist or is not a string.
 pub fn infer_event_instance_id(trace: &mut Trace) -> AttributeResult<()> {
     let mut pending_instance_ids: HashMap<String, VecDeque<i64>> = HashMap::default();
     // The last used id. Incremented before use --> Lowest id is 1
@@ -96,6 +100,10 @@ pub fn infer_event_instance_id(trace: &mut Trace) -> AttributeResult<()> {
 /// case, this event never completed.
 ///
 /// Events with a lifecycle transition other than "start" or "complete" are ignored.
+///
+///
+/// Returns an `Err` if the "lifecycle:transition" or "concept:name" attribute
+/// does not exist or is not a string.
 pub fn infer_event_instance_id_log(log: &mut EventLog) -> AttributeResult<()> {
     log.traces.iter_mut().try_for_each(infer_event_instance_id)
 }

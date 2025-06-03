@@ -19,6 +19,12 @@ pub struct TimedLevenshteinBootstrapComparator {
     binner_args: KMeansArgs,
 }
 
+impl TimedLevenshteinBootstrapComparator {
+    pub fn new(binner_args: KMeansArgs) -> Self {
+        Self { binner_args }
+    }
+}
+
 impl BootstrapTestComparator<Vec<(String, usize)>> for TimedLevenshteinBootstrapComparator {
     fn extract_representations(
         &self,

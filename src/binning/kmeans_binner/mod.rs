@@ -26,6 +26,15 @@ impl KMeansArgs {
     pub fn new(k: usize, max_iter: usize, seed: Option<u64>) -> Self {
         Self { k, max_iter, seed }
     }
+
+    pub fn with_seed(mut self, seed: u64) -> Self {
+        self.seed = Some(seed);
+        self
+    }
+    pub fn with_bins(mut self, k: usize) -> Self {
+        self.k = k;
+        self
+    }
 }
 
 pub struct KMeansBinner {
