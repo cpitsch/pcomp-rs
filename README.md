@@ -19,7 +19,7 @@ let log_1 = import_xes_file("path/to/log_1.xes.gz", XESImportOptions::default())
 let log_2 = import_xes_file("path/to/log_2.xes.gz", XESImportOptions::default()).unwrap();
 
 let permutation_result =
-    TimedLevenshteinPermutationComparator::default().compare(&log_1, &log_2, 10_000);
+    TimedLevenshteinPermutationComparator::default().compare(&log_1, &log_2, 10_000, Some(seed));
 println!(
     "Timed Control Flow Permutation Test: {}",
     permutation_result.pvalue
