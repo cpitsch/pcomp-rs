@@ -15,7 +15,7 @@ impl std::fmt::Display for AttributeLevel {
             AttributeLevel::Trace => "Trace",
             AttributeLevel::Log => "Log",
         };
-        write!(f, "{}", level_str)
+        write!(f, "{level_str}")
     }
 }
 

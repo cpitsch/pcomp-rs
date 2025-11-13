@@ -36,9 +36,11 @@ where
     /// - Returns an `Err` if required attributes are not present on the events.
     ///     - For a control-flow comparison, this is the activity label `concept:name`
     ///     - For timed control flow, this is additionally the start and completion timestamps
-    ///         `start_timestamp` and `time:timestamp`.
-    ///         - In case you are using an event log without `start_timestamp`, see
-    ///             [crate::comparators::common::preparation::ensure_start_timestamp_key]
+    ///       `start_timestamp` and `time:timestamp`.
+    ///       - In case you are using an event log without `start_timestamp`, see
+    ///         [`ensure_start_timestamp_key`]
+    ///
+    /// [`ensure_start_timestamp_key`]: crate::comparators::common::preparation::ensure_start_timestamp_key
     fn compare(
         &self,
         log_1: &EventLog,
@@ -70,8 +72,8 @@ where
         );
 
         let logs_emd = compute_emd(
-            stoch_lang_1.frequencies.clone(),
-            stoch_lang_2.frequencies.clone(),
+            stoch_lang_1.frequencies,
+            stoch_lang_2.frequencies,
             &log_1_log_2_distances,
         )
         .emd;
@@ -129,6 +131,11 @@ where
     }
 }
 
+/// Project the distance matrix to to contain only the rows for items in `population_1`
+/// and the columns for items in `population_2`.
+///
+/// `dist_matrix_source_population` is the population for which the distance matrix
+/// was created, i.e., an "index" mapping rows/columns to items.
 pub fn project_distance_matrix<T: Clone + Eq + Hash>(
     dists: &Array2<f64>,
     dist_matrix_source_population: &[T],

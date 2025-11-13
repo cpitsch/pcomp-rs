@@ -12,5 +12,8 @@ pub fn compute_emd(
         &mut distances.as_standard_layout().to_owned(),
     )
     .solve()
+    // By construction of the EMD (Same capacity on both sides, fully connected bipartite
+    // graph, ..), there should always be a solution.
+    // WARN: Unless max iter is reached?
     .unwrap()
 }

@@ -5,7 +5,7 @@ use super::Binner;
 use _kmeans::kmeans;
 use itertools::Itertools;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct KMeansArgs {
     k: usize,
     max_iter: usize,
@@ -37,6 +37,7 @@ impl KMeansArgs {
     }
 }
 
+#[derive(Debug)]
 pub struct KMeansBinner {
     args: KMeansArgs,
     centroids: Vec<f64>,

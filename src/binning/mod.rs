@@ -11,6 +11,7 @@ pub trait Binner<U> {
     fn num_bins(&self) -> usize;
 }
 
+#[derive(Debug)]
 pub struct BinnerManager<U, T: Binner<U>> {
     binners: HashMap<String, T>,
 

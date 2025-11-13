@@ -36,7 +36,7 @@ pub fn infer_lifecycle_information_log(log: &mut EventLog) {
 /// Infer the event instance id based on the lifecycle information. "start" events
 /// are matched to "complete" events of the same activity in a FIFO fashion.
 ///
-/// If the trace does not have lifecycle information, see [infer_lifecycle_information].
+/// If the trace does not have lifecycle information, see [`infer_lifecycle_information`].
 ///
 /// It is possile that certain start events do not have a corresponding complete event,
 /// and vice versa. In the latter case, this denotes an atomic event, and in the first
@@ -93,7 +93,7 @@ pub fn infer_event_instance_id(trace: &mut Trace) -> AttributeResult<()> {
 /// Infer the event instance id based on the lifecycle information. "start" events
 /// are matched to "complete" events of the same activity in a FIFO fashion.
 ///
-/// If the event log does not have lifecycle information, see [infer_lifecycle_information_log].
+/// If the event log does not have lifecycle information, see [`infer_lifecycle_information_log`].
 ///
 /// It is possile that certain start events do not have a corresponding complete event,
 /// and vice versa. In the latter case, this denotes an atomic event, and in the first
@@ -156,8 +156,8 @@ pub fn fold_instance_id_to_start_timestamps(trace: &mut Trace) -> AttributeResul
 }
 
 /// Ensure that all events in the event log have a `start_timestamp` attribute and
-/// a `complete_timestamp`` attribute. For the specifics of the strategy
-/// used, see [fold_instance_id_to_start_timestamps].
+/// a `complete_timestamp` attribute. For the specifics of the strategy
+/// used, see [`fold_instance_id_to_start_timestamps`].
 ///
 /// In the end, only the events with a "complete" lifecycle transition remain, and
 /// are enriched with the `start_timestamp` attribute based on the corresponding
@@ -174,18 +174,18 @@ pub fn fold_instance_id_to_start_timestamps_log(log: &mut EventLog) -> Attribute
 /// instance ids.
 ///
 /// Ensure that all events in the event log have a `start_timestamp` attribute and
-/// a `complete_timestamp`` attribute. This is done following the following strategy:
+/// a `complete_timestamp` attribute. This is done following the following strategy:
 ///
 /// 1. If each event has a start timestamp, there is nothing to do.
-/// 2. If not all events have a lifecycle transition, it is inferred using [infer_lifecycle_information_log].
-///     So, events are assumed to be atomic, each getting a "complete" transition.
+/// 2. If not all events have a lifecycle transition, it is inferred using [`infer_lifecycle_information_log`].
+///    So, events are assumed to be atomic, each getting a "complete" transition.
 /// 3. Then, if each event has an instance id, the instance id is used to match
-///     start- and complete events, creating a single event for each pair with the timestamp
-///     of the first as the start timestamp and the timestamp of the second as the completion
-///     timestamp.`
+///    start- and complete events, creating a single event for each pair with the timestamp
+///    of the first as the start timestamp and the timestamp of the second as the completion
+///    timestamp.
 /// 4. Otherwise, the instance id is first inferred from the lifecycle information in a FIFO
-///     fashion, so the first started execution of a particular activity is the first
-///     to complete. See [infer_event_instance_id_log].
+///    fashion, so the first started execution of a particular activity is the first
+///    to complete. See [`infer_event_instance_id_log`].
 ///
 /// Note that using this strategy, start events with no complete event are lost, and
 /// if the instance id is inferred, any existing values are overwritten.
@@ -230,7 +230,7 @@ mod tests {
     use chrono::TimeDelta;
     use process_mining_macros::{event_log, trace};
 
-    /// Convert activities like "a_start" to activity "a", lifecycle "start"
+    /// Convert activities like "`a_start`" to activity "`a`", lifecycle "`start`"
     fn helper_activity_to_lifecycle(trace: &mut Trace) {
         trace.events.iter_mut().for_each(|evt| {
             let name = get_activity_label(evt).unwrap();
@@ -249,7 +249,7 @@ mod tests {
         });
     }
 
-    /// Convert activities like "a_start" to activity "a", lifecycle "start"
+    /// Convert activities like "`a_start`" to activity "`a`", lifecycle "`start`"
     fn helper_activity_to_lifecycle_instance_id(trace: &mut Trace) {
         trace.events.iter_mut().for_each(|evt| {
             let name = get_activity_label(evt).unwrap();

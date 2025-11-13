@@ -116,11 +116,7 @@ impl LevenshteinDistance for (String, usize) {
     fn substitution_cost(&self, other: &Self) -> f64 {
         let string_cost = if self.0 == other.0 { 0.0 } else { 1.0 };
         // usize absolute difference
-        let usize_cost = if self.1 > other.1 {
-            self.1 - other.1
-        } else {
-            other.1 - self.1
-        };
+        let usize_cost = self.1.abs_diff(other.1);
 
         // Assuming the largest bin is 2, scales from 0 to 1
         let scaled_usize_cost = usize_cost as f64 / 2.0;

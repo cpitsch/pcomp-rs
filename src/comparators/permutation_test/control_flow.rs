@@ -6,6 +6,7 @@ use crate::{
 
 use super::permutation_test_comparator::PermutationTestComparator;
 
+#[derive(Debug)]
 pub struct ControlFlowPermutationComparator;
 
 impl PermutationTestComparator<Vec<String>> for ControlFlowPermutationComparator {

@@ -1,5 +1,6 @@
 use super::Binner;
 
+#[derive(Debug)]
 pub struct OuterPercentileBinner {
     lower_boundary: f64,
     upper_boundary: f64,

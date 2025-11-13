@@ -6,11 +6,7 @@ use crate::{
 };
 
 pub fn project_trace_on_activity(trace: &Trace) -> AttributeResult<Vec<String>> {
-    trace
-        .events
-        .iter()
-        .map(|event| get_activity_label(event))
-        .collect()
+    trace.events.iter().map(get_activity_label).collect()
 }
 
 pub fn project_traces_on_activity(log: &EventLog) -> AttributeResult<Vec<Vec<String>>> {

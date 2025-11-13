@@ -14,7 +14,7 @@ use crate::{
 
 use super::bootstrap_comparator::BootstrapTestComparator;
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct TimedLevenshteinBootstrapComparator {
     binner_args: KMeansArgs,
 }

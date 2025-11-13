@@ -8,6 +8,7 @@ use crate::{
 
 use super::bootstrap_comparator::BootstrapTestComparator;
 
+#[derive(Debug)]
 pub struct ControlFlowBootstrapComparator;
 
 impl BootstrapTestComparator<Vec<String>> for ControlFlowBootstrapComparator {

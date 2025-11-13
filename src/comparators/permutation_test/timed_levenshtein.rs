@@ -14,7 +14,7 @@ use crate::{
 
 use super::permutation_test_comparator::PermutationTestComparator;
 
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct TimedLevenshteinPermutationComparator {
     binner_args: KMeansArgs,
 }

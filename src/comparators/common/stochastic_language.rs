@@ -3,6 +3,7 @@ use std::hash::Hash;
 use itertools::{multiunzip, Itertools};
 use ndarray::Array1;
 
+#[derive(Debug)]
 pub struct StochasticLanguage<T: Hash + Eq + Clone> {
     pub variants: Vec<T>,
     pub frequencies: Array1<f64>,
