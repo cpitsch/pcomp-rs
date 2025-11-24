@@ -1,6 +1,8 @@
 use just_emd::{EmdResult, EmdSolver};
 use ndarray::{Array1, Array2};
 
+/// Compute the Earth Mover's Distance (EMD) between two populations given as an
+/// array of relative frequencies.
 pub fn compute_emd(
     mut frequencies_1: Array1<f64>,
     mut frequencies_2: Array1<f64>,
