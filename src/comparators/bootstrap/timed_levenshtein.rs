@@ -14,7 +14,14 @@ use crate::{
 
 use super::bootstrap_comparator::BootstrapTestComparator;
 
-#[derive(Default)]
+/// An implementation of the [`BootstrapTestComparator`] for timed control flow
+/// comparisons using K-Means++ clustering to bin service times and the postnormalized
+/// weighted Levenshtein distance as a distance notion between _service-time traces_.
+///
+/// This is an extension to the Bootstrap Method proposed in "Statistical tests
+/// and association measures for business processes" by Leemans et al. and has not
+/// been evaluated anywhere.
+#[derive(Default, Debug)]
 pub struct TimedLevenshteinBootstrapComparator {
     binner_args: KMeansArgs,
 }

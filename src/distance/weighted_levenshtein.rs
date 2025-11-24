@@ -2,12 +2,18 @@ use std::cmp::max;
 
 use ndarray::Array2;
 
+/// Trait to define the edit costs for the weighted Levenshtein distance.
+///
+/// If the trait is implemented for type `T`, the weighted Levenshtein distance
+/// can be computed for `&[T]`
 pub trait LevenshteinDistance: PartialEq {
     fn insertion_cost(&self) -> f64;
     fn deletion_cost(&self) -> f64;
     fn substitution_cost(&self, other: &Self) -> f64;
 }
 
+/// The weighted Levenshtein distance using edit costs defined with the
+/// [`LevenshteinDistance`] trait.
 pub fn weighted_levenshtein_distance<T>(trace_1: &[T], trace_2: &[T]) -> f64
 where
     T: LevenshteinDistance,
@@ -45,6 +51,9 @@ where
     matrix[(len_1, len_2)]
 }
 
+/// The postnormalized weighted Levenshtein distance using edit costs defined
+/// with the [`LevenshteinDistance`] trait. Computed as the weighted Levenshtein
+/// distance divided by the length of the longer trace.
 pub fn postnormalized_weighted_levenshtein_distance<T>(trace_1: &[T], trace_2: &[T]) -> f64
 where
     T: LevenshteinDistance,
@@ -116,11 +125,7 @@ impl LevenshteinDistance for (String, usize) {
     fn substitution_cost(&self, other: &Self) -> f64 {
         let string_cost = if self.0 == other.0 { 0.0 } else { 1.0 };
         // usize absolute difference
-        let usize_cost = if self.1 > other.1 {
-            self.1 - other.1
-        } else {
-            other.1 - self.1
-        };
+        let usize_cost = self.1.abs_diff(other.1);
 
         // Assuming the largest bin is 2, scales from 0 to 1
         let scaled_usize_cost = usize_cost as f64 / 2.0;

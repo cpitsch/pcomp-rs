@@ -8,6 +8,12 @@ use crate::{
 
 use super::bootstrap_comparator::BootstrapTestComparator;
 
+/// An implementation of the [`BootstrapTestComparator`] for control flow comparisons
+/// using the postnormalized Levenshtein distance as a distance notion between traces.
+///
+/// This is the Bootstrap Method, as proposed in "Statistical tests and association
+/// measures for business processes" by Leemans et al.
+#[derive(Debug)]
 pub struct ControlFlowBootstrapComparator;
 
 impl BootstrapTestComparator<Vec<String>> for ControlFlowBootstrapComparator {

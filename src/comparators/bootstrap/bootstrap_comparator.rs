@@ -17,17 +17,32 @@ use crate::{
 
 #[derive(Debug)]
 pub struct BootstrapTestComparisonResult {
+    /// The EMD measured between the two event logs.
     pub logs_emd: f64,
+    /// The EMDs computed in the bootstrapping phase.
     pub bootstrap_emds: Vec<f64>,
+    /// The computed p-value
     pub pvalue: f64,
 }
 
+/// The Bootstrap Method for Process Hypothesis Testing proposed in "Statistical
+/// tests and association measures for business processes" by Leemans et al. (The
+/// P-P-UP test).
+///
+/// A bootstrap distribution is created by repeatedly computing the EMD between
+/// the first event log and a sample of itself (with replacement). Then, the p-value
+/// is computed as the fraction of bootstrap distribution values greater than the
+/// EMD between the two event logs.
 pub trait BootstrapTestComparator<T>
 where
     T: Hash + Eq + Clone + Ord + Debug,
 {
+    /// The cost (dissimilarity) function between two representations.
     fn cost(&self, rep_1: &T, rep_2: &T) -> f64;
 
+    /// Map each case to a _representation_, capturing the information relevant
+    /// to the comparison. Can also include preprocessing, e.g., binning of continuous
+    /// values.
     fn extract_representations(
         &self,
         log_1: &EventLog,
@@ -39,9 +54,11 @@ where
     /// - Returns an `Err` if required attributes are not present on the events.
     ///     - For a control-flow comparison, this is the activity label `concept:name`
     ///     - For timed control flow, this is additionally the start and completion timestamps
-    ///         `start_timestamp` and `time:timestamp`.
-    ///         - In case you are using an event log without `start_timestamp`, see
-    ///             [crate::comparators::common::preparation::ensure_start_timestamp_key]
+    ///       `start_timestamp` and `time:timestamp`.
+    ///       - In case you are using an event log without `start_timestamp`, see
+    ///         [`ensure_start_timestamp_key`]
+    ///
+    /// [`ensure_start_timestamp_key`]: crate::comparators::common::preparation::ensure_start_timestamp_key
     fn compare(
         &self,
         log_1: &EventLog,
@@ -79,6 +96,12 @@ where
         })
     }
 
+    /// Compute the distance matrix between two collections of variants using
+    /// the [`cost`] function.
+    ///
+    /// The output matrix has dimensions `(variants_1.len(), variants_2.len())`.
+    ///
+    /// [`cost`]: BootstrapTestComparator::cost
     fn compute_distance_matrix(&self, variants_1: &[T], variants_2: &[T]) -> Array2<f64> {
         let progress = build_progress_bar(
             variants_1.len() as u64 * variants_2.len() as u64,
@@ -98,6 +121,16 @@ where
         dists
     }
 
+    /// Compute the bootstrap distribution by repeatedly taking samples of size
+    /// `resample_size` from `reference_stochastic_language` with replacement,
+    /// and computing the EMD to `reference_stochastic_language`.
+    ///
+    /// * `reference_stochastic_language`: The stochastic language of the event
+    ///   log considered for the bootstrap method.
+    /// * `resample_size`: The size of the samples in the bootstrap method.
+    /// * `distribution_size`: The number of repititions (the size of the resulting
+    ///   bootstrap distribution).
+    /// * `seed`: An (optional) seed to use for sampling.
     fn bootstrap_emd_population(
         &self,
         reference_stochastic_language: StochasticLanguage<T>,

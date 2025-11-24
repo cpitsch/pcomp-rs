@@ -5,14 +5,20 @@ use super::Binner;
 use _kmeans::kmeans;
 use itertools::Itertools;
 
-#[derive(Clone)]
+/// Arguments for K-Means++ clustering.
+#[derive(Clone, Debug)]
 pub struct KMeansArgs {
+    /// The number of clusters
     k: usize,
+    /// Maximum number of iterations in the K-Means algorithm
     max_iter: usize,
+    /// Optional seed for initialization.
     seed: Option<u64>,
 }
 
 impl Default for KMeansArgs {
+    /// Create a K-Means clusterer with default values: 3 clusters,
+    /// 100 iterations, and no seed.
     fn default() -> Self {
         Self {
             k: 3,
@@ -37,6 +43,8 @@ impl KMeansArgs {
     }
 }
 
+/// Binning based on K-Means++ Clustering
+#[derive(Debug)]
 pub struct KMeansBinner {
     args: KMeansArgs,
     centroids: Vec<f64>,
@@ -62,6 +70,7 @@ impl Binner<f64> for KMeansBinner {
         self.args.k
     }
 
+    /// Bin a data point by assigning it to the index of the closest cluster.
     fn bin(&self, data: f64) -> usize {
         self.centroids
             .iter()

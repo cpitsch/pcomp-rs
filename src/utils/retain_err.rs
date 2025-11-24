@@ -1,6 +1,6 @@
 use std::error::Error;
 
-/// [Vec::retain], but the filter function can error. In this case, the error is propagated
+/// [`Vec::retain`], but the filter function can error. In this case, the error is propagated
 /// upwards and the vec remains untouched.
 pub fn retain_err<T, F, E>(vec: &mut Vec<T>, f: F) -> Result<(), E>
 where
@@ -18,7 +18,7 @@ where
     Ok(())
 }
 
-/// [Vec::retain_mut], but the filter function can error. In this case, the error is propagated
+/// [`Vec::retain_mut`], but the filter function can error. In this case, the error is propagated
 /// upwards and the vec remains untouched (with the exception of any changes made by applying `f`.
 pub fn retain_mut_err<T, F, E>(vec: &mut Vec<T>, f: F) -> Result<(), E>
 where

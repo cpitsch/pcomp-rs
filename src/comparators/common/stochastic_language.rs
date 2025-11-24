@@ -3,6 +3,8 @@ use std::hash::Hash;
 use itertools::{multiunzip, Itertools};
 use ndarray::Array1;
 
+/// Tracks relative frequencies of items (traces).
+#[derive(Debug)]
 pub struct StochasticLanguage<T: Hash + Eq + Clone> {
     pub variants: Vec<T>,
     pub frequencies: Array1<f64>,
@@ -12,6 +14,7 @@ impl<T> StochasticLanguage<T>
 where
     T: Hash + Eq + Clone + PartialOrd,
 {
+    /// Create a [`StochasticLanguage`] from a `Vec` of items their relative frequency.
     pub fn from_vec(v: Vec<(T, f64)>) -> Self {
         let v_len = v.len();
         let mut variants: Vec<T> = Vec::with_capacity(v_len);
@@ -28,6 +31,7 @@ where
         }
     }
 
+    /// Iterate over `(item, relative_frequency)` pairs.
     pub fn iter_pairs(
         &self,
     ) -> std::iter::Zip<
@@ -38,6 +42,7 @@ where
         res
     }
 
+    /// Create a [`StochasticLanguage`] from a `Vec` of items
     pub fn from_items(items: Vec<T>) -> Self {
         let population_size: f64 = items.len() as f64;
         items

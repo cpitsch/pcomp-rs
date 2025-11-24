@@ -11,9 +11,13 @@ pub trait Binner<U> {
     fn num_bins(&self) -> usize;
 }
 
+/// Train and manage a separate binner for each "key" (activity).
+#[derive(Debug)]
 pub struct BinnerManager<U, T: Binner<U>> {
     binners: HashMap<String, T>,
 
+    // `U` (the data type of the unbinned values) needs to be used inside the binner
+    // manager. `PhantomData` does this for us.
     #[doc(hidden)]
     _phantom: PhantomData<U>,
 }
@@ -22,10 +26,15 @@ impl<U, T> BinnerManager<U, T>
 where
     T: Binner<U>,
 {
-    pub fn bin(&self, label: &String, data: U) -> usize {
+    /// Bin a value for a certain class (activity).
+    ///
+    /// Panics if the activity was not in the training data.
+    pub fn bin(&self, label: &str, data: U) -> usize {
         self.binners.get(label).unwrap().bin(data)
     }
 
+    /// Create a [`BinnerManager`] from (key, value) pairs. For each unique key, a
+    /// binner is created trained on the respective values.
     pub fn from_key_value_pairs(data: Vec<(String, U)>, binner_args: T::Args) -> Self {
         let mut grouped_data: HashMap<String, Vec<U>> = HashMap::new();
         data.into_iter().for_each(|(k, v)| {

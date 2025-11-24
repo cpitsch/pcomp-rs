@@ -17,7 +17,7 @@
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-//! Implementation altered from https://www.github.com/xgillard/clustering
+//! Implementation altered from <https://www.github.com/xgillard/clustering>
 //! Added seeding
 //!
 //! This crate provides an easy and efficient way to perform kmeans

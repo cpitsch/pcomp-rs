@@ -15,7 +15,7 @@ impl std::fmt::Display for AttributeLevel {
             AttributeLevel::Trace => "Trace",
             AttributeLevel::Log => "Log",
         };
-        write!(f, "{}", level_str)
+        write!(f, "{level_str}")
     }
 }
 
@@ -27,6 +27,7 @@ pub enum AttributeErrorKind {
     TypeMismatch(String, AttributeValue),
 }
 
+/// An error that can occur when accessing attributes.
 #[derive(Debug, Clone, Error)]
 #[error("{level}-level attribute \"{key}\" {kind}.")]
 pub struct AttributeError {
