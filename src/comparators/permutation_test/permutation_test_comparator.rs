@@ -13,11 +13,21 @@ use crate::{
 
 #[derive(Debug)]
 pub struct PermutationTestComparisonResult {
+    /// The EMD measured between the two original event logs.
     pub logs_emd: f64,
+    /// The EMDs computed in the permutation phase.
     pub permutation_emds: Vec<f64>,
+    /// The computed p-value
     pub pvalue: f64,
 }
 
+/// Process Hypothesis Testing based on the Permutation Test and EMD. Proposed in
+/// "Hypothesis Testing for Processes" by Pitsch et al ([DOI](https://doi.org/10.1109/ICPM66919.2025.11220677)).
+///
+/// A permutation distribution is computed by repeatedly shuffling cases between
+/// the two event logs and computing the EMD. The p-value is computed as the fraction
+/// of permutation distribution values that are greater than the EMD between the
+/// two event logs.
 pub trait PermutationTestComparator<T>
 where
     T: Hash + Eq + Clone + Ord + Debug,
@@ -25,6 +35,7 @@ where
     // fn extract_representation(&self, trace: &Trace) -> T;
     fn cost(&self, rep_1: &T, rep_2: &T) -> f64;
 
+    /// The cost (dissimilarity) function between two representations.
     fn extract_representations(
         &self,
         log_1: &EventLog,
@@ -101,6 +112,14 @@ where
         })
     }
 
+    /// Compute the distance matrix between each pair of variants using the [`cost`]
+    /// function.
+    ///
+    /// The output matrix has the dimensions `(variants.len(), variants.len())`.
+    /// To compute the matrix, it is assumed that the [`cost`] function is symmetric,
+    /// i.e., `cost(a,b)=cost(b,a)`.
+    ///
+    /// [`cost`]: PermutationTestComparator::cost
     fn compute_symmetric_distance_matrix(&self, variants: &[T]) -> Array2<f64> {
         let mut mat = Array2::zeros((variants.len(), variants.len()));
         let progress = build_progress_bar(
@@ -168,6 +187,14 @@ pub fn project_distance_matrix<T: Clone + Eq + Hash>(
         .select(ndarray::Axis(1), &pop_2_indices)
 }
 
+/// Compute the permutation distribution between `behavior_1` and `behavior_2`.
+///
+/// * `dists`: The distance matrix computed between `behavior_1` and `behavior_2`
+/// * `distance_matrix_source_population`: The population used to compute the distance
+///   matrix. Used to map representations to their row/column in the distance matrix.
+/// * `distribution_size`: The number of permutations to perform, i.e., the number
+///   of EMDs to compute.
+/// * `seed`: The (optional) seed to use for the random shuffling.
 pub fn compute_permutation_test_distribution<T: PartialEq>(
     dists: &Array2<f64>,
     distance_matrix_source_population: Vec<T>,

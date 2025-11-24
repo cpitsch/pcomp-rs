@@ -6,6 +6,8 @@ use crate::{
 
 use super::permutation_test_comparator::PermutationTestComparator;
 
+/// An implementation of the [`PermutationTestComparator`] for control flow comparisons
+/// using the postnormalized Levenshtein distance as a distance notion between traces.
 #[derive(Debug)]
 pub struct ControlFlowPermutationComparator;
 

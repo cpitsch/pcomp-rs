@@ -1,5 +1,7 @@
 use super::Binner;
 
+/// A simple binner based on Percentiles: The lower and upper x-th percentiles
+/// form the 0th and 2nd bin, respectively. The middle values form the 1st bin.
 #[derive(Debug)]
 pub struct OuterPercentileBinner {
     lower_boundary: f64,
@@ -7,11 +9,13 @@ pub struct OuterPercentileBinner {
 }
 
 impl Binner<f64> for OuterPercentileBinner {
-    type Args = ();
+    type Args = f64;
 
-    fn new(mut data: Vec<f64>, _args: Self::Args) -> Self {
-        let lower_boundary = percentile(&mut data, 10.0);
-        let upper_boundary = percentile(&mut data, 90.0);
+    fn new(mut data: Vec<f64>, args: Self::Args) -> Self {
+        // TODO: Could avoid sorting data multiple times by expecting sorted data
+        // in `percentile`
+        let lower_boundary = percentile(&mut data, args);
+        let upper_boundary = percentile(&mut data, 100.0 - args);
 
         Self {
             lower_boundary,
@@ -33,6 +37,10 @@ impl Binner<f64> for OuterPercentileBinner {
     }
 }
 
+/// Get the x-th percentile of the data.
+///
+/// `percentile` is expected to be in the range [0.0, 100.0]. If this is not the
+/// case, the function panics.
 fn percentile(data: &mut [f64], percentile: f64) -> f64 {
     if !(0.0..=100.0).contains(&percentile) {
         panic!("Invalid percentile.")

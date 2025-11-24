@@ -14,6 +14,9 @@ use crate::{
 
 use super::permutation_test_comparator::PermutationTestComparator;
 
+/// An implementation of the [`PermutationTestComparator`] for timed control flow
+/// comparisons using K-Means++ clustering to bin service times, and the postnormalized
+/// weighted Levenshtein distance as a distance notion between _service-time traces_.
 #[derive(Default, Debug)]
 pub struct TimedLevenshteinPermutationComparator {
     binner_args: KMeansArgs,
