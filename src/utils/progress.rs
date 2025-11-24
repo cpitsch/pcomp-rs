@@ -2,6 +2,7 @@ use std::fmt::Write;
 
 use indicatif::{ProgressBar, ProgressState, ProgressStyle};
 
+/// Helper function to create a pretty progress bar.
 pub fn build_progress_bar(total: u64, message: String) -> ProgressBar {
     // Pad the message with a space on each side, or leave it empty
     let padded_message = if message.is_empty() {

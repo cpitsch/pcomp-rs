@@ -27,6 +27,7 @@ pub enum AttributeErrorKind {
     TypeMismatch(String, AttributeValue),
 }
 
+/// An error that can occur when accessing attributes.
 #[derive(Debug, Clone, Error)]
 #[error("{level}-level attribute \"{key}\" {kind}.")]
 pub struct AttributeError {
