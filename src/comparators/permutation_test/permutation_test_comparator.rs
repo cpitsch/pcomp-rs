@@ -101,8 +101,7 @@ where
         let pvalue = permutation_emds
             .iter()
             .filter(|emd| **emd > logs_emd)
-            .collect_vec()
-            .len() as f64
+            .count() as f64
             / distribution_size as f64;
 
         Ok(PermutationTestComparisonResult {
@@ -225,6 +224,7 @@ pub fn compute_permutation_test_distribution<T: PartialEq>(
         distribution_size as u64,
         "Computing permutation EMD distribution".into(),
     );
+
     let res = (0..distribution_size)
         .map(|_| {
             let mut sample = (0..sample_size).collect_vec();
@@ -242,7 +242,7 @@ pub fn compute_permutation_test_distribution<T: PartialEq>(
                 .map(|index| population_indices_to_variant_indices[*index])
                 .counts()
                 .into_iter()
-                .map(|(k, v)| (k, v as f64 / behavior_1.len() as f64))
+                .map(|(k, v)| (k, v as f64 / behavior_2.len() as f64))
                 .collect();
 
             let projected_dists = dists
@@ -255,10 +255,12 @@ pub fn compute_permutation_test_distribution<T: PartialEq>(
                 &projected_dists,
             )
             .emd;
+
             progress.inc(1);
             res
         })
         .collect();
+
     progress.finish();
     res
 }
