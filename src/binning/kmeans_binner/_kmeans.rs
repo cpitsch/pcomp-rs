@@ -60,7 +60,12 @@ pub struct Clustering<'a, T> {
 
 /// This function returns a clustering that groups the given set of
 /// 'elems' in 'k' clusters and will at most perform 'iter' iterations before stopping
-pub fn kmeans<T: Elem>(k: usize, elems: &[T], iter: usize, seed: Option<u64>) -> Clustering<T> {
+pub fn kmeans<'a, T: Elem>(
+    k: usize,
+    elems: &'a [T],
+    iter: usize,
+    seed: Option<u64>,
+) -> Clustering<'a, T> {
     let mut centroids = initialize(k, elems, seed);
     let mut membership = vec![0; elems.len()];
     let mut counts = vec![0; k];
