@@ -1,7 +1,9 @@
 #![warn(
     clippy::redundant_clone,
     clippy::doc_markdown,
-    missing_debug_implementations
+    clippy::perf,
+    missing_debug_implementations,
+    rust_2018_idioms
 )]
 
 pub mod binning;
